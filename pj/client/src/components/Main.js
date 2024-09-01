@@ -17,6 +17,7 @@ const Main = ({ carList, searchOption, setSearchOption, searchText, setSearchTex
                 setLoggedOn(false);
             }
         });
+        onSearch({ option: searchOption, text: "" });
     }, []);
 
     return (<>
@@ -48,7 +49,7 @@ const Main = ({ carList, searchOption, setSearchOption, searchText, setSearchTex
                 <option>연식</option>
                 <option>가격</option>
             </select>
-            <input type="text" name="search" placeholder="검색" onChange={(event) => { setSearchText(event.target.value) }}></input>
+            <input type="text" name="search" placeholder="검색" id="searchInput" onChange={(event) => { setSearchText(event.target.value) }}></input>
             <button className="btn btn-primary" onClick={
                 () => {
                     onSearch({ option: searchOption, text: searchText });
@@ -57,6 +58,7 @@ const Main = ({ carList, searchOption, setSearchOption, searchText, setSearchTex
             <button className="btn btn-success" onClick={
                 () => {
                     onSearch({ option: searchOption, text: "" });
+                    document.getElementById('searchInput').value='';
                 }
             }>초기화</button>
         </div>

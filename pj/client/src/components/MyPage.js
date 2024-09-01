@@ -31,14 +31,14 @@ const MyPage = ({ setCurrentPage, onSearch, carList, onDetailClick }) => {
                             onSearch({ option: "번호", text: member.wishlist });
                         }
                     }>위시리스트</button>
-                    <Table carList={carList} onDetailClick={onDetailClick}/>
+                    <Table carList={carList} onDetailClick={onDetailClick} />
                 </div>
             ) : (
                 <div id="cantLoad">
                     <h2 className="text-danger">비정상 접근 - 로그인되어 있지 않습니다.</h2>
-                    <button className="btn btn-danger" onClick={() => setCurrentPage('main')}>뒤로가기</button>
                 </div>
             )}
+            <button className="btn btn-danger" onClick={() => setCurrentPage('main')}>뒤로가기</button>
         </>
     );
 }

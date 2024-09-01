@@ -138,11 +138,22 @@ app.post('/wishlist', async (req, res) => {
     const wishNo = req.body.no;
     const alreadyAdded = await db.collection("session").findOne({ id: memberId, wishlist: wishNo });
     if (alreadyAdded) {
+        res.send(true);
+    } else {
+        res.send(false);
+    }
+})
+
+app.patch('/wishlist', async (req, res) => {
+    const memberId = req.body.id;
+    const wishNo = req.body.no;
+    const alreadyAdded = await db.collection("session").findOne({ id: memberId, wishlist: wishNo });
+    if (alreadyAdded) {
         await db.collection("session").updateOne({id: memberId}, {$pull: {wishlist: wishNo}});
-        res.send("위시리스트 제거 성공");
+        res.send(false);
     } else {
         await db.collection("session").updateOne({id: memberId}, {$push: {wishlist: wishNo}});
-        res.send("위시리스트 추가 성공");
+        res.send(true);
     }
 })
 
