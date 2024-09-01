@@ -13,9 +13,6 @@ function App() {
     const [currentPage, setCurrentPage] = useState('main');
     const [detailNo, setDetailNo] = useState(-1);
 
-    const [member, setMember] = useState(null);
-    const [loggedOn, setLoggedOn] = useState(false);
-
     useEffect(() => {
         axios.get(serverURL + "db").then(function (response) {
             setCarList(response['data']);
@@ -37,10 +34,6 @@ function App() {
         switch (currentPage) {
             case 'main':
                 return <Main carList={carList}
-                    loggedOn={loggedOn}
-                    setLoggedOn={setLoggedOn}
-                    member={member}
-                    setMember={setMember}
                     searchOption={searchOption}
                     setSearchOption={setSearchOption}
                     searchText={searchText}
@@ -64,7 +57,10 @@ function App() {
                         onDetailClick={onDetailClick} />;
                 }
             case 'mypage':
-                return <MyPage member={member} setCurrentPage={setCurrentPage}/>
+                return <MyPage setCurrentPage={setCurrentPage}
+                    onSearch={onSearch}
+                    carList={carList}
+                    onDetailClick={onDetailClick} />
         }
     };
 

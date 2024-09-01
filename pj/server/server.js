@@ -73,6 +73,9 @@ app.post('/db', async (req, res) => {
         case "가격":
             query = { price: { $lte: parseInt(req.body.text) } };
             break;
+        case "번호":
+            query = { no: {$in: req.body.text} };
+            break;
         default:
             query = {}; // 잘못된 옵션이 들어올 경우 모든 데이터를 반환하거나 에러 처리
     }
@@ -90,14 +93,12 @@ app.post('/db', async (req, res) => {
 app.post('/login', async (req, res) => {
     const inputId = req.body.id;
     const inputPw = req.body.password;
-    let idx = memberList.findIndex((member) => {
-        return member.id === inputId;
-    });
-    if (idx !== -1) {
-        if (inputPw === memberList[idx].pw) {
+    const aboutToLogin = await db.collection("members").findOne({ id: inputId }, { projection: { _id: 0 }});
+    if (aboutToLogin) {
+        if (inputPw === aboutToLogin.pw) {
             try {
                 // 비동기적으로 insertOne() 호출
-                await db.collection("session").insertOne(memberList[idx]);
+                db.collection("session").insertOne(aboutToLogin);
                 return res.send(true);
             } catch (error) {
                 console.error('세션 삽입 실패:', error);
@@ -108,7 +109,14 @@ app.post('/login', async (req, res) => {
     res.send(false);
 });
 
-app.get('/logout', (req, res) => {
+app.get('/logout', async (req, res) => {
+    let cursor = db.collection("session").find({}, { projection: { _id: 0 } });
+    session = await cursor.toArray(); // 항상 첫 번째 세션 정보만 사용함. 여러 개의 세션을 넣는 것은 상정하지 않음
+    let sessionMember = session[0];
+    await db.collection("members").updateOne(
+        { id: sessionMember.id }, // 업데이트할 문서를 찾는 조건
+        { $set: sessionMember } // 문서를 sessionMember 객체로 업데이트
+    );
     db.collection("session").deleteMany({});
     res.send(false);
 });
@@ -117,12 +125,26 @@ app.get('/check-session', async (req, res) => {
     let cursor = db.collection("session").find({}, { projection: { _id: 0 } });
     session = await cursor.toArray(); // 항상 첫 번째 세션 정보만 사용함. 여러 개의 세션을 넣는 것은 상정하지 않음
     let sessionMember = session[0];
+    console.log(session[0]);
     if (sessionMember) {
         res.send(sessionMember);
     } else {
         res.send(null);
     }
 });
+
+app.post('/wishlist', async (req, res) => {
+    const memberId = req.body.id;
+    const wishNo = req.body.no;
+    const alreadyAdded = await db.collection("session").findOne({ id: memberId, wishlist: wishNo });
+    if (alreadyAdded) {
+        await db.collection("session").updateOne({id: memberId}, {$pull: {wishlist: wishNo}});
+        res.send("위시리스트 제거 성공");
+    } else {
+        await db.collection("session").updateOne({id: memberId}, {$push: {wishlist: wishNo}});
+        res.send("위시리스트 추가 성공");
+    }
+})
 
 
 const server = http.createServer(app);

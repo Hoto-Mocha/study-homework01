@@ -4,7 +4,10 @@ import Logout from "./Logout";
 import axios from "axios";
 import { useEffect, useState } from "react";
 
-const Main = ({ loggedOn, setLoggedOn, member, setMember, carList, searchOption, setSearchOption, searchText, setSearchText, onSearch, onDetailClick, setCurrentPage }) => {
+const Main = ({ carList, searchOption, setSearchOption, searchText, setSearchText, onSearch, onDetailClick, setCurrentPage }) => {
+    const [member, setMember] = useState(null);
+    const [loggedOn, setLoggedOn] = useState(false);
+
     useEffect(() => {
         axios.get("http://localhost:5000/check-session").then(function (response) {
             if (response['data']) {
@@ -25,11 +28,13 @@ const Main = ({ loggedOn, setLoggedOn, member, setMember, carList, searchOption,
             <div className={`${loggedOn ? '' : 'd-none'}`}>
                 <button className={"btn btn-primary"} data-toggle="modal" onClick={() => setCurrentPage('mypage')}>마이페이지</button>
                 <button className={"btn btn-danger"} data-toggle="modal" data-target="#logoutModal">로그아웃</button>
-                <button className={"btn btn-danger"} data-toggle="modal" onClick={(e) => {
+
+                <button className={"btn btn-danger d-none"} data-toggle="modal" onClick={(e) => { // 개발 환경에서 필요에 따라 드러나게 해서 사용
                     axios.get("http://localhost:5000/check-session").then(function (response) {
-                        
+                        console.log(response['data']);
                     });
                 }}>세션 확인</button>
+
             </div>
             <Login setLoggedOn={setLoggedOn} />
             <Logout setLoggedOn={setLoggedOn} />

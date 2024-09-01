@@ -1,14 +1,37 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import Table from './Table';
+import axios from 'axios';
 
-const MyPage = ({ member, setCurrentPage }) => {
-    const isLoggedIn = !!member;
+const MyPage = ({ setCurrentPage, onSearch, carList, onDetailClick }) => {
+    const [member, setMember] = useState({});
+    const [loggedOn, setLoggedOn] = useState(false);
+    useEffect(() => {
+        axios.get("http://localhost:5000/check-session").then(function (response) {
+            if (response['data']) {
+                setMember((response['data']));
+                setLoggedOn(true);
+            } else {
+                setLoggedOn(false);
+            }
+        });
+        onSearch({ option: "번호", text: [] });
+    }, []);
 
     return (
         <>
             <h1 className="jumbotron">마이페이지</h1>
-            {isLoggedIn ? (
+            {loggedOn ? (
                 <div id="myPageMain">
-                    <h2>마이페이지 내용</h2>
+                    <h2>{member.name}님 환영합니다.</h2>
+                    <hr />
+                    <button className="btn btn-success" onClick={
+                        () => {
+                            console.dir(member);
+                            console.log(member.wishlist);
+                            onSearch({ option: "번호", text: member.wishlist });
+                        }
+                    }>위시리스트</button>
+                    <Table carList={carList} onDetailClick={onDetailClick}/>
                 </div>
             ) : (
                 <div id="cantLoad">
